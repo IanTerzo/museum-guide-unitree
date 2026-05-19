@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>museumTTS</title>
+		<style>
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+
+			body {
+				background: #0f0f0f;
+				color: #e0e0e0;
+				font-family: "Segoe UI", system-ui, sans-serif;
+				min-height: 100vh;
+				padding: 2rem;
+			}
+
+			h1 {
+				font-size: 1.4rem;
+				font-weight: 500;
+				color: #aaa;
+				margin-bottom: 1.5rem;
+				letter-spacing: 0.05em;
+			}
+
+			h2 {
+				font-size: 0.8rem;
+				font-weight: 500;
+				color: #444;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				margin-bottom: 0.75rem;
+			}
+
+			/* ── upload card ── */
+			#upload-card {
+				background: #141414;
+				border: 1px solid #222;
+				border-radius: 8px;
+				padding: 1rem 1.25rem;
+				margin-bottom: 1.75rem;
+				max-width: 520px;
+			}
+
+			#upload-card .row {
+				display: flex;
+				gap: 0.5rem;
+				align-items: center;
+				flex-wrap: wrap;
+			}
+
+			#upload-name {
+				flex: 1;
+				min-width: 120px;
+				background: #1a1a1a;
+				border: 1px solid #2a2a2a;
+				border-radius: 6px;
+				color: #e0e0e0;
+				font-size: 0.9rem;
+				padding: 0.45rem 0.7rem;
+				outline: none;
+			}
+			#upload-name:focus {
+				border-color: #444;
+			}
+
+			#upload-file-label {
+				background: #1a1a1a;
+				border: 1px solid #2a2a2a;
+				border-radius: 6px;
+				color: #888;
+				font-size: 0.85rem;
+				padding: 0.45rem 0.7rem;
+				cursor: pointer;
+				white-space: nowrap;
+				transition: border-color 0.1s;
+			}
+			#upload-file-label:hover {
+				border-color: #3a3a3a;
+				color: #bbb;
+			}
+			#upload-file-label.has-file {
+				color: #e0e0e0;
+				border-color: #3a3a3a;
+			}
+			#upload-file {
+				display: none;
+			}
+
+			#upload-btn {
+				background: #1e3a5f;
+				border: 1px solid #2a5298;
+				border-radius: 6px;
+				color: #7eb8f7;
+				cursor: pointer;
+				font-size: 0.85rem;
+				padding: 0.45rem 0.9rem;
+				white-space: nowrap;
+				transition: background 0.1s;
+			}
+			#upload-btn:hover:not(:disabled) {
+				background: #254a77;
+			}
+			#upload-btn:disabled {
+				opacity: 0.4;
+				cursor: default;
+			}
+
+			#upload-status {
+				font-size: 0.78rem;
+				color: #555;
+				margin-top: 0.5rem;
+				min-height: 1em;
+			}
+			#upload-status.ok {
+				color: #4caf50;
+			}
+			#upload-status.err {
+				color: #f44336;
+			}
+
+			#upload-progress-wrap {
+				height: 2px;
+				background: #1a1a1a;
+				border-radius: 1px;
+				margin-top: 0.6rem;
+				overflow: hidden;
+				display: none;
+			}
+			#upload-progress-bar {
+				height: 100%;
+				background: #4a9eff;
+				width: 0%;
+				transition: width 0.1s;
+			}
+
+			/* ── search ── */
+			#search {
+				background: #1a1a1a;
+				border: 1px solid #2a2a2a;
+				border-radius: 6px;
+				color: #e0e0e0;
+				font-size: 0.95rem;
+				padding: 0.5rem 0.75rem;
+				width: 100%;
+				max-width: 400px;
+				margin-bottom: 1rem;
+				outline: none;
+			}
+			#search:focus {
+				border-color: #444;
+			}
+
+			/* ── sound grid ── */
+			#sounds {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.6rem;
+			}
+
+			.sound-item {
+				display: flex;
+				align-items: stretch;
+				border: 1px solid #2a2a2a;
+				border-radius: 6px;
+				overflow: hidden;
+				transition: border-color 0.1s;
+			}
+			.sound-item:hover {
+				border-color: #3a3a3a;
+			}
+			.sound-item.playing {
+				border-color: #4a9eff;
+			}
+			.sound-item.error {
+				border-color: #ff4a4a;
+			}
+
+			.sound-btn {
+				background: #1a1a1a;
+				border: none;
+				color: #e0e0e0;
+				cursor: pointer;
+				font-size: 0.9rem;
+				padding: 0.5rem 1rem;
+				transition: background 0.1s;
+			}
+			.sound-btn:hover {
+				background: #242424;
+			}
+			.sound-item.playing .sound-btn {
+				color: #4a9eff;
+			}
+			.sound-item.error .sound-btn {
+				color: #ff4a4a;
+			}
+
+			.del-btn {
+				background: #1a1a1a;
+				border: none;
+				border-left: 1px solid #222;
+				color: #333;
+				cursor: pointer;
+				font-size: 0.75rem;
+				padding: 0 0.55rem;
+				transition:
+					color 0.1s,
+					background 0.1s;
+			}
+			.del-btn:hover {
+				color: #f44336;
+				background: #1f1010;
+			}
+
+			#status {
+				margin-top: 1.5rem;
+				font-size: 0.8rem;
+				color: #555;
+				min-height: 1.2em;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>museumTTS</h1>
+
+		<div id="upload-card">
+			<h2>Upload sound</h2>
+			<div class="row">
+				<input
+					id="upload-name"
+					type="text"
+					placeholder="sound name"
+					autocomplete="off"
+				/>
+				<label id="upload-file-label" for="upload-file"
+					>choose file</label
+				>
+				<input id="upload-file" type="file" accept=".wav,.mp3" />
+				<button id="upload-btn" disabled>Upload</button>
+			</div>
+			<div id="upload-progress-wrap">
+				<div id="upload-progress-bar"></div>
+			</div>
+			<div id="upload-status"></div>
+		</div>
+
+		<input
+			id="search"
+			type="text"
+			placeholder="filter sounds..."
+			autocomplete="off"
+		/>
+		<div id="sounds"></div>
+		<div id="status"></div>
+
+		<script>
+			let sounds = [];
+
+			async function loadSounds() {
+				try {
+					const res = await fetch("/sounds");
+					if (!res.ok)
+						throw new Error("server returned " + res.status);
+					const data = await res.json();
+					sounds = Array.isArray(data) ? data : [];
+					render(sounds);
+					if (sounds.length === 0)
+						document.getElementById("status").textContent =
+							"no sounds found";
+				} catch (e) {
+					document.getElementById("status").textContent =
+						"failed to load sounds: " + e.message;
+				}
+			}
+
+			function render(list) {
+				const container = document.getElementById("sounds");
+				container.innerHTML = "";
+				for (const s of list) {
+					const item = document.createElement("div");
+					item.className = "sound-item";
+
+					const btn = document.createElement("button");
+					btn.className = "sound-btn";
+					btn.textContent = s.name;
+					btn.onclick = () => play(s, item);
+
+					const del = document.createElement("button");
+					del.className = "del-btn";
+					del.title = "remove from list";
+					del.textContent = "✕";
+					del.onclick = (e) => {
+						e.stopPropagation();
+						deleteSound(s.name, item);
+					};
+
+					item.appendChild(btn);
+					item.appendChild(del);
+					container.appendChild(item);
+				}
+			}
+
+			async function play(sound, item) {
+				item.classList.remove("error");
+				item.classList.add("playing");
+				document.getElementById("status").textContent =
+					"playing: " + sound.name;
+				try {
+					const res = await fetch("/play", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/x-www-form-urlencoded",
+						},
+						body: "file=" + encodeURIComponent(sound.path),
+					});
+					if (!res.ok) {
+						document.getElementById("status").textContent =
+							"error: " + (await res.text()).trim();
+						item.classList.add("error");
+					} else {
+						document.getElementById("status").textContent =
+							"done: " + sound.name;
+					}
+				} catch (e) {
+					document.getElementById("status").textContent =
+						"error: " + e.message;
+					item.classList.add("error");
+				} finally {
+					item.classList.remove("playing");
+				}
+			}
+
+			async function deleteSound(name, item) {
+				if (
+					!confirm(
+						'Remove "' +
+							name +
+							'" from the sound list?\n(File on disk is kept.)',
+					)
+				)
+					return;
+				try {
+					const res = await fetch(
+						"/sounds/" + encodeURIComponent(name),
+						{ method: "DELETE" },
+					);
+					if (res.ok) {
+						sounds = sounds.filter((s) => s.name !== name);
+						item.remove();
+						document.getElementById("status").textContent =
+							"removed: " + name;
+					} else {
+						document.getElementById("status").textContent =
+							"delete failed: " + (await res.text());
+					}
+				} catch (e) {
+					document.getElementById("status").textContent =
+						"error: " + e.message;
+				}
+			}
+
+			/* ── upload ── */
+			const nameInput = document.getElementById("upload-name");
+			const fileInput = document.getElementById("upload-file");
+			const fileLabel = document.getElementById("upload-file-label");
+			const uploadBtn = document.getElementById("upload-btn");
+			const uploadStatus = document.getElementById("upload-status");
+			const progressWrap = document.getElementById(
+				"upload-progress-wrap",
+			);
+			const progressBar = document.getElementById("upload-progress-bar");
+
+			function checkReady() {
+				uploadBtn.disabled = !(
+					nameInput.value.trim() && fileInput.files.length
+				);
+			}
+
+			nameInput.addEventListener("input", checkReady);
+
+			fileInput.addEventListener("change", () => {
+				if (fileInput.files.length) {
+					fileLabel.textContent = fileInput.files[0].name;
+					fileLabel.classList.add("has-file");
+				} else {
+					fileLabel.textContent = "choose file";
+					fileLabel.classList.remove("has-file");
+				}
+				checkReady();
+			});
+
+			uploadBtn.addEventListener("click", () => {
+				const name = nameInput.value.trim();
+				const file = fileInput.files[0];
+				if (!name || !file) return;
+
+				const fd = new FormData();
+				fd.append("name", name);
+				fd.append("file", file);
+
+				uploadBtn.disabled = true;
+				uploadStatus.className = "";
+				uploadStatus.textContent = "uploading...";
+				progressWrap.style.display = "block";
+				progressBar.style.width = "0%";
+
+				const xhr = new XMLHttpRequest();
+				xhr.open("POST", "/upload");
+
+				xhr.upload.addEventListener("progress", (e) => {
+					if (e.lengthComputable)
+						progressBar.style.width =
+							(e.loaded / e.total) * 100 + "%";
+				});
+
+				xhr.addEventListener("load", () => {
+					progressBar.style.width = "100%";
+					setTimeout(() => {
+						progressWrap.style.display = "none";
+						progressBar.style.width = "0%";
+					}, 400);
+					if (xhr.status >= 200 && xhr.status < 300) {
+						const sound = JSON.parse(xhr.responseText);
+						const idx = sounds.findIndex(
+							(s) =>
+								s.name.toLowerCase() ===
+								sound.name.toLowerCase(),
+						);
+						if (idx >= 0) sounds[idx] = sound;
+						else sounds.push(sound);
+						render(sounds);
+						uploadStatus.className = "ok";
+						uploadStatus.textContent = "uploaded: " + sound.name;
+						nameInput.value = "";
+						fileInput.value = "";
+						fileLabel.textContent = "choose file";
+						fileLabel.classList.remove("has-file");
+					} else {
+						uploadStatus.className = "err";
+						uploadStatus.textContent =
+							"error: " + xhr.responseText.trim();
+					}
+					checkReady();
+				});
+
+				xhr.addEventListener("error", () => {
+					uploadStatus.className = "err";
+					uploadStatus.textContent = "upload failed (network error)";
+					progressWrap.style.display = "none";
+					checkReady();
+				});
+
+				xhr.send(fd);
+			});
+
+			document.getElementById("search").addEventListener("input", (e) => {
+				const q = e.target.value.toLowerCase();
+				render(sounds.filter((s) => s.name.toLowerCase().includes(q)));
+			});
+
+			loadSounds();
+		</script>
+	</body>
+</html>

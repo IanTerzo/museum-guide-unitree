@@ -1,0 +1,21 @@
+{
+	"addr": ":8080",
+	"sounds": [
+		{
+			"name": "Cafeterian",
+			"path": "/home/unitree/clanker-TTS/player/sounds/Cafeterian.wav"
+		},
+		{
+			"name": "Entrén",
+			"path": "/home/unitree/clanker-TTS/player/sounds/Cafeterian.wav"
+		},
+		{
+			"name": "Korridoren",
+			"path": "/home/unitree/clanker-TTS/player/sounds/Cafeterian.wav"
+		},
+		{
+			"name": "Teknikgrottan",
+			"path": "/home/unitree/clanker-TTS/player/sounds/Cafeterian.wav"
+		}
+	]
+}

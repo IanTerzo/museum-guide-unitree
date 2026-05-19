@@ -1,0 +1,32 @@
+# C++
+museum-SLAM/example/build/
+!museum-SLAM/example/build/skola
+
+# Object files and generated sources
+*.o
+*.i
+*.s
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+install_manifest*.txt
+compile_commands.json
+
+# Compiled binaries
+keyDemo
+
+# Go stuff
+museum-TTS/player/museumTTS
+museum-TTS/ui/ui
+
+# Robot task lists written at runtime
+/home/unitree/task_list.json
+
+# Point-cloud maps
+*.pcd
+
+# ROS2 / DDS log directories
+log/
+~ros/
+.ros/
